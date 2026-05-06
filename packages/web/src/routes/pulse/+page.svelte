@@ -8,7 +8,7 @@
   import { recordsUrl, encodeFilter } from '$lib/filters.js';
 
   let { data } = $props();
-  const { filter, meta, totalListings, weekLabels, sparkRows, trendSeries, demandIndex, movers, cooc, cl, regSeries, regHits } = $derived(data);
+  const { filter, meta, totalListings, weekLabels, sparkRows, trendSeries, demandIndex, movers, cooc, cl, regSeries, regHits, dictTotalTerms, dictTermsWithHits } = $derived(data);
 
   function fmt(n) { return n.toLocaleString('de-DE'); }
   function pct(n) { if (!isFinite(n)) return '∞'; return (n>=0?'+':'') + n.toFixed(1) + '%'; }
@@ -44,8 +44,8 @@
 </div>
 
 <div class="grid-2">
-  <Card num="01" title="Top 20 terms · {meta.dicts[filter.dict].name}"
-        sub="sparkline = trend over window · click row to filter">
+  <Card num="01" title="All {dictTotalTerms} terms · {meta.dicts[filter.dict].name}"
+        sub="{dictTermsWithHits}/{dictTotalTerms} have ≥1 citation · sparkline = trend · click row to filter · zero-count terms shown at bottom">
     <BarList rows={termRows} showSpark={true} />
   </Card>
 

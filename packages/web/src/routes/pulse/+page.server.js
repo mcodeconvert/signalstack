@@ -13,17 +13,28 @@ export async function load({ url, setHeaders }) {
   const wks = TIME_WEEKS[filter.time] ?? 260;
   const offset = meta.weeks - wks;
 
-  const top = topTerms(listings, filter.dict, 20);
+  // Rank EVERY term in the active dictionary by citation count.
+  // Terms with zero hits are included at the bottom so the user sees
+  // the full coverage of the dict and can spot what's silent.
+  const dictTerms = meta.dicts[filter.dict]?.terms ?? [];
+  const counts = topTerms(listings, filter.dict, 9999); // returns only non-zero
+  const countMap = new Map(counts);
+  const allTermsRanked = dictTerms
+    .map(t => [t, countMap.get(t) ?? 0])
+    .sort((a, b) => b[1] - a[1]);
+
   // sparkline + trend top 5
-  const top5 = top.slice(0, 5);
+  const top5 = allTermsRanked.slice(0, 5);
   const trendSeries = top5.map(([t]) => ({
     term: t,
     arr: termTimeSeries(listings, `${filter.dict}:${t}`, meta.weeks).slice(offset)
   }));
-  const sparkRows = top.map(([t, n]) => ({
+  const sparkRows = allTermsRanked.map(([t, n]) => ({
     term: t, n,
     spark: termTimeSeries(listings, `${filter.dict}:${t}`, meta.weeks).slice(offset)
   }));
+  const dictTotalTerms = dictTerms.length;
+  const dictTermsWithHits = allTermsRanked.filter(([, n]) => n > 0).length;
 
   // weekLabels
   const baseDate = new Date(meta.nowDate);
@@ -56,6 +67,7 @@ export async function load({ url, setHeaders }) {
 
   return {
     filter, meta, totalListings: listings.length,
-    weekLabels, sparkRows, trendSeries, demandIndex, movers, cooc, cl, regHits, regSeries
+    weekLabels, sparkRows, trendSeries, demandIndex, movers, cooc, cl, regHits, regSeries,
+    dictTotalTerms, dictTermsWithHits
   };
 }

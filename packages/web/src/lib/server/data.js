@@ -121,13 +121,38 @@ export function encodeFilter(f) {
 }
 
 /* ------------------------------------------------------------------ */
-/*  filterListings — DB or demo                                        */
+/*  filterListings — DB or demo, with in-process TTL cache             */
 /* ------------------------------------------------------------------ */
+const FILTER_CACHE = new Map();
+const FILTER_TTL_MS = 60_000;
+const FILTER_CACHE_MAX = 32;
+
+function cacheKey(spec) {
+  return JSON.stringify({
+    t: spec.time, s: [...(spec.sources ?? [])].sort().join(','),
+    l: spec.lang, d: spec.dict, terms: [...(spec.terms ?? [])].sort().join(','),
+    m: spec.mode, q: spec.search ?? '', v: spec.vertical ?? ''
+  });
+}
+
 export async function filterListings(spec) {
   const anchor = await getAnchor();
+  const key = cacheKey(spec);
+  const now = Date.now();
+  const hit = FILTER_CACHE.get(key);
+  if (hit && (now - hit.at) < FILTER_TTL_MS) return hit.value;
 
-  if (HAS_DB) return filterListingsDb(spec, anchor);
-  return filterListingsDemo(spec, anchor);
+  const value = HAS_DB
+    ? await filterListingsDb(spec, anchor)
+    : await filterListingsDemo(spec, anchor);
+
+  FILTER_CACHE.set(key, { at: now, value });
+  // bound cache size
+  if (FILTER_CACHE.size > FILTER_CACHE_MAX) {
+    const oldest = [...FILTER_CACHE.entries()].sort((a, b) => a[1].at - b[1].at)[0];
+    if (oldest) FILTER_CACHE.delete(oldest[0]);
+  }
+  return value;
 }
 
 async function filterListingsDb(spec, anchor) {

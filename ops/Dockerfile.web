@@ -1,34 +1,24 @@
 # SignalStack web — SvelteKit + adapter-node
-# Single-stage; explicit dev deps for build; demo data generated in image.
+# Production reads from Postgres exclusively (DATABASE_URL).
 FROM node:22-alpine
 WORKDIR /app
 RUN apk add --no-cache wget
 
-# Force dev deps even with outer NODE_ENV=production
 ENV NODE_ENV=development
 
 COPY package.json package-lock.json* ./
 COPY packages/core/package.json packages/core/
 COPY packages/web/package.json packages/web/
-COPY packages/scraper/package.json packages/scraper/
 RUN npm ci --workspaces --include-workspace-root
 
 COPY packages/core packages/core
-COPY packages/scraper packages/scraper
 COPY packages/web packages/web
 COPY db db
 
-# Generate fallback demo data so the dashboard renders even before
-# the worker has populated Postgres
-RUN node packages/scraper/src/demo-gen.js
-
-# Build SvelteKit
 RUN npm run build -w packages/web
 
-# Slim the image
 RUN npm prune --omit=dev --workspaces --include-workspace-root || true
 
-# Switch to production for runtime
 ENV NODE_ENV=production
 ENV PORT=3000
 EXPOSE 3000

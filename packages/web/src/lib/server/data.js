@@ -142,24 +142,22 @@ async function filterListingsDb(spec, anchor) {
   if (spec.vertical) allTerms.push(`D6:${spec.vertical}`);
 
   if (allTerms.length) {
-    const tuples = allTerms.map(t => {
-      const idx = t.indexOf(':');
-      return [t.slice(0, idx), t.slice(idx + 1)];
-    });
+    // term_hits has columns (dict_key, term); we match on the concatenated
+    // form to avoid the "anonymous composite" limitation in postgres.js.
     if (spec.mode === 'all' || spec.vertical) {
-      // ALL mode (or vertical alone) — must have every term
-      const required = spec.vertical ? allTerms.length : tuples.length;
+      // ALL mode — listing must have every term in the set
+      const required = allTerms.length;
       const rows = await sql`
         SELECT listing_id FROM term_hits
-        WHERE (dict_key, term) IN ${sql(tuples)}
+        WHERE (dict_key || ':' || term) = ANY(${allTerms}::text[])
         GROUP BY listing_id
-        HAVING count(*) >= ${required}
+        HAVING count(DISTINCT dict_key || ':' || term) >= ${required}
       `;
       pool = new Set(rows.map(r => r.listing_id));
     } else {
       const rows = await sql`
         SELECT DISTINCT listing_id FROM term_hits
-        WHERE (dict_key, term) IN ${sql(tuples)}
+        WHERE (dict_key || ':' || term) = ANY(${allTerms}::text[])
       `;
       pool = new Set(rows.map(r => r.listing_id));
     }

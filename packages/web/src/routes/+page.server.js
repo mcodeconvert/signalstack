@@ -1,6 +1,7 @@
 import { parseFilter, filterListings, moneyFlow, getMeta, volumeByWeekSource } from '$lib/server/data.js';
 
-export async function load({ url }) {
+export async function load({ url, setHeaders }) {
+  setHeaders({ 'cache-control': 'private, max-age=60' });
   const filter = parseFilter(url.searchParams);
   const meta = await getMeta();
   const listings = await filterListings(filter);

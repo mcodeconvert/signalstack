@@ -1,0 +1,29 @@
+# SignalStack worker — scraper + stats refresh + cron
+# Single-stage; no public port. Health on $WORKER_PORT (default 3001).
+FROM node:22-alpine
+WORKDIR /app
+ENV NODE_ENV=production
+ENV WORKER_PORT=3001
+
+# Playwright Chromium needs these system libs even with --no-deps
+RUN apk add --no-cache \
+    chromium nss freetype harfbuzz ca-certificates ttf-freefont \
+    bash curl
+ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
+ENV PLAYWRIGHT_BROWSERS_PATH=/usr/lib/chromium
+ENV PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium
+
+COPY package.json package-lock.json* ./
+COPY packages/core/package.json packages/core/
+COPY packages/scraper/package.json packages/scraper/
+RUN npm ci --workspaces --include-workspace-root --omit=optional
+
+COPY packages/core packages/core
+COPY packages/scraper packages/scraper
+COPY db db
+
+EXPOSE 3001
+HEALTHCHECK --interval=60s --timeout=5s --retries=3 CMD curl -fsS http://localhost:3001/health || exit 1
+
+# On boot: migrate, seed dicts, start runner.
+CMD ["sh", "-c", "node db/migrate.js && node db/seed.js && node packages/scraper/src/runner.js"]

@@ -1,0 +1,16 @@
+{
+  "name": "@signalstack/core",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./types": "./src/types.js",
+    "./dict": "./src/dict.js",
+    "./hits": "./src/hits.js",
+    "./trend": "./src/trend.js",
+    "./normalize": "./src/normalize.js",
+    "./fingerprint": "./src/fingerprint.js"
+  }
+}

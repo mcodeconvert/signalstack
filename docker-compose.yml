@@ -1,0 +1,25 @@
+# Local dev compose — Postgres only.
+# Web and worker run via `npm run dev:web` and `npm run scrape:run` directly,
+# so you get hot-reload and quick iteration. Coolify uses the Dockerfiles for prod.
+services:
+  pg:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: signalstack
+      POSTGRES_PASSWORD: dev
+      POSTGRES_DB: signalstack
+    ports: ['5433:5432']
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U signalstack']
+      interval: 5s
+      retries: 8
+
+  adminer:
+    image: adminer
+    ports: ['8081:8080']
+    depends_on: [pg]
+
+volumes:
+  pg-data: {}

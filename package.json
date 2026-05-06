@@ -1,0 +1,29 @@
+{
+  "name": "signalstack",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Self-running market-signal observatory — DACH freelance + RFP signal, weekly batch.",
+  "license": "UNLICENSED",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build -ws --if-present",
+    "test": "node --test --test-reporter=spec packages/core/test packages/scraper/test",
+    "test:core": "node --test --test-reporter=spec packages/core/test",
+    "test:scraper": "node --test --test-reporter=spec packages/scraper/test",
+    "db:migrate": "node db/migrate.js",
+    "db:seed": "node db/seed.js",
+    "scrape:run": "node packages/scraper/src/cli.js run",
+    "scrape:dry": "node packages/scraper/src/cli.js dry",
+    "scrape:replay": "node packages/scraper/src/cli.js replay",
+    "stats:refresh": "node packages/scraper/src/cli.js stats",
+    "demo:gen": "node packages/scraper/src/demo-gen.js",
+    "dev:web": "npm run dev -w packages/web",
+    "build:web": "npm run build -w packages/web"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  }
+}

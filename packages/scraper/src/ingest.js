@@ -22,6 +22,9 @@ import { mapItem as mapBund } from './extractors/bund.js';
 import { mapItem as mapHn } from './extractors/hn.js';
 import { mapItem as mapGithub } from './extractors/github.js';
 import { mapItem as mapJunico } from './extractors/junico.js';
+import { mapItem as mapFreelancerMap } from './extractors/freelancermap.js';
+import { mapItem as mapRemoteOK } from './extractors/remoteok.js';
+import { mapItem as mapWwr } from './extractors/wwr.js';
 
 const ITEM_MAPPERS = {
   freelance: mapFreelance,
@@ -29,7 +32,10 @@ const ITEM_MAPPERS = {
   bund: mapBund,
   hn: mapHn,
   github: mapGithub,
-  junico: mapJunico
+  junico: mapJunico,
+  freelancermap: mapFreelancerMap,
+  remoteok: mapRemoteOK,
+  wwr: mapWwr
 };
 
 /** @param {string[]} sourceIds */

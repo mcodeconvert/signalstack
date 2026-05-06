@@ -9,7 +9,7 @@
  * Heath endpoint exposed on :PORT (default 3001) for Coolify probe.
  */
 import http from 'node:http';
-import cron from 'node:cron';
+import cron from 'node-cron';
 import { runIngest } from './ingest.js';
 import { refreshStats } from './stats.js';
 import { db, shutdown } from './db.js';

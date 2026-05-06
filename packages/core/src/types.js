@@ -86,12 +86,13 @@ export const SCHEMA_VERSION = 1;
 export const DICT_VERSION = 1;
 
 /** @type {readonly string[]} */
-export const SOURCE_IDS = Object.freeze(['ted', 'bund', 'hn', 'github']);
+export const SOURCE_IDS = Object.freeze(['ted', 'bund', 'hn', 'github', 'junico']);
 
 /** @type {Record<string, { id: string, name: string, color: string, archiveMonths: number, weeklyRate: number, lang: string }>} */
 export const SOURCE_META = Object.freeze({
   ted:    { id: 'ted',    name: 'TED · EU',       color: '#1a1a1a', archiveMonths: 60, weeklyRate: 600, lang: 'DE' },
   bund:   { id: 'bund',   name: 'service.bund.de',color: '#5a7355', archiveMonths: 1,  weeklyRate: 80,  lang: 'DE' },
   hn:     { id: 'hn',     name: 'Hacker News',    color: '#c4423b', archiveMonths: 60, weeklyRate: 50,  lang: 'EN' },
-  github: { id: 'github', name: 'GitHub',         color: '#3d5a80', archiveMonths: 60, weeklyRate: 60,  lang: 'EN' }
+  github: { id: 'github', name: 'GitHub',         color: '#3d5a80', archiveMonths: 60, weeklyRate: 60,  lang: 'EN' },
+  junico: { id: 'junico', name: 'Junico.de',      color: '#9d6b53', archiveMonths: 6,  weeklyRate: 5,   lang: 'DE' }
 });

@@ -21,13 +21,15 @@ import { mapItem as mapTed } from './extractors/ted.js';
 import { mapItem as mapBund } from './extractors/bund.js';
 import { mapItem as mapHn } from './extractors/hn.js';
 import { mapItem as mapGithub } from './extractors/github.js';
+import { mapItem as mapJunico } from './extractors/junico.js';
 
 const ITEM_MAPPERS = {
   freelance: mapFreelance,
   ted: mapTed,
   bund: mapBund,
   hn: mapHn,
-  github: mapGithub
+  github: mapGithub,
+  junico: mapJunico
 };
 
 /** @param {string[]} sourceIds */

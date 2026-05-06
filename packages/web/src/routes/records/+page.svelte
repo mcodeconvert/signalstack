@@ -47,7 +47,7 @@
 </script>
 
 <FilterBar {filter} sources={meta.sources} dicts={meta.dicts} />
-<StatusBar {filter} matched={totalListings} total={meta.totalListings} watermark={'(records view)'} />
+<StatusBar {filter} matched={totalListings} total={meta.totalListings} watermark={'(records view)'} totalSources={Object.keys(meta.sources).length} />
 
 <Card num="L" title="Listing browser" sub="all filters apply · 25 per page · click row for full record + source URL">
   <div class="actions">

@@ -11,7 +11,7 @@ import { runIngest } from './ingest.js';
 import { refreshStats } from './stats.js';
 import { shutdown } from './db.js';
 import { log } from './log.js';
-import { EXTRACTORS } from './extractors/index.js';
+import { EXTRACTORS, ACTIVE_SOURCE_IDS } from './extractors/index.js';
 
 function parseArgs(argv) {
   const out = {};
@@ -31,7 +31,7 @@ const args = parseArgs(process.argv.slice(3));
 async function main() {
   switch (cmd) {
     case 'run': {
-      const sources = args.source ? [args.source] : Object.keys(EXTRACTORS);
+      const sources = args.source ? [args.source] : ACTIVE_SOURCE_IDS;
       const r = await runIngest(sources);
       log.info({ runId: r.runId, summary: r.summary }, 'ingest finished');
       break;

@@ -15,14 +15,23 @@ import { runLogger } from './log.js';
 import { listingId } from '@signalstack/core/fingerprint';
 import { dedupeFingerprint } from '@signalstack/core/fingerprint';
 import { deriveHits } from '@signalstack/core/hits';
-import { EXTRACTORS } from './extractors/index.js';
+import { EXTRACTORS, ACTIVE_SOURCE_IDS } from './extractors/index.js';
 import { mapItem as mapFreelance } from './extractors/freelance.js';
 import { mapItem as mapTed } from './extractors/ted.js';
+import { mapItem as mapBund } from './extractors/bund.js';
+import { mapItem as mapHn } from './extractors/hn.js';
+import { mapItem as mapGithub } from './extractors/github.js';
 
-const ITEM_MAPPERS = { freelance: mapFreelance, ted: mapTed };
+const ITEM_MAPPERS = {
+  freelance: mapFreelance,
+  ted: mapTed,
+  bund: mapBund,
+  hn: mapHn,
+  github: mapGithub
+};
 
 /** @param {string[]} sourceIds */
-export async function runIngest(sourceIds = Object.keys(EXTRACTORS)) {
+export async function runIngest(sourceIds = ACTIVE_SOURCE_IDS) {
   const sql = db();
   const runId = `run_${Date.now().toString(36)}`;
   const summary = {};

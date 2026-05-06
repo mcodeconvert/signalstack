@@ -1,5 +1,5 @@
 <script>
-  let { filter, matched, total, watermark } = $props();
+  let { filter, matched, total, watermark, totalSources = 4 } = $props();
   function fmt(n) { return n.toLocaleString('de-DE'); }
 </script>
 
@@ -7,7 +7,7 @@
   <span>
     <strong>{fmt(matched)}</strong> of <strong>{fmt(total)}</strong> listings match.
     Time = <strong>{filter.time}</strong>,
-    src = <strong>{filter.sources.length}/5</strong>,
+    src = <strong>{filter.sources.length}/{totalSources}</strong>,
     lang = <strong>{filter.lang}</strong>,
     dict = <strong>{filter.dict}</strong>,
     terms = <strong>{filter.terms.length || 'none'}</strong>{#if filter.terms.length > 1} (<strong>{filter.mode.toUpperCase()}</strong>){/if}{#if filter.search}, q = <strong>{filter.search}</strong>{/if}{#if filter.vertical}, vertical = <strong>{filter.vertical}</strong>{/if}.

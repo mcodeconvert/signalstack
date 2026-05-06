@@ -48,7 +48,7 @@
   </div>
 </div>
 
-<StatusBar {filter} matched={totalListings} total={meta.totalListings} watermark={weekLabels[weekLabels.length - 1]} />
+<StatusBar {filter} matched={totalListings} total={meta.totalListings} watermark={weekLabels[weekLabels.length - 1]} totalSources={Object.keys(meta.sources).length} />
 
 <div class="kpis">
   <Kpi label={filter.vertical ? `${filter.vertical} · listings` : 'All listings'}

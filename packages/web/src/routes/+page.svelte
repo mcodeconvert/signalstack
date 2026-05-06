@@ -35,7 +35,7 @@
 </script>
 
 <FilterBar {filter} sources={meta.sources} dicts={meta.dicts} />
-<StatusBar {filter} matched={totalListings} total={meta.totalListings} watermark={weekLabels[weekLabels.length - 1]} />
+<StatusBar {filter} matched={totalListings} total={meta.totalListings} watermark={weekLabels[weekLabels.length - 1]} totalSources={Object.keys(meta.sources).length} />
 
 <div class="kpis">
   <Kpi

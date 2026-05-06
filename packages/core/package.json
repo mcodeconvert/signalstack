@@ -11,6 +11,7 @@
     "./hits": "./src/hits.js",
     "./trend": "./src/trend.js",
     "./normalize": "./src/normalize.js",
-    "./fingerprint": "./src/fingerprint.js"
+    "./fingerprint": "./src/fingerprint.js",
+    "./words": "./src/words.js"
   }
 }

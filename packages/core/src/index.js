@@ -4,3 +4,4 @@ export * from './trend.js';
 export * from './normalize.js';
 export * from './fingerprint.js';
 export * from './types.js';
+export * from './words.js';

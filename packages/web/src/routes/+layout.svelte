@@ -21,6 +21,7 @@
     <nav>
       <a href="/" class:active={isActive('/') && path === '/'}>Money</a>
       <a href="/pulse" class:active={isActive('/pulse')}>Pulse</a>
+      <a href="/words" class:active={isActive('/words')}>Words</a>
       <a href="/verticals" class:active={isActive('/verticals')}>Verticals</a>
       <a href="/records" class:active={isActive('/records')}>Records</a>
       <a href="/admin/sources" class:active={isActive('/admin')}>Admin</a>

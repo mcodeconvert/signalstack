@@ -87,7 +87,7 @@ const TIME_WEEKS = { '30d': 4, '6mo': 26, '1y': 52, '3y': 156, '5y': 260 };
 export function defaultFilter() {
   return {
     time: '5y',
-    sources: ['gulp','freelance','twago','junico','evergabe'],
+    sources: ['ted','gulp','freelance','twago','junico','evergabe'],
     lang: 'all',
     dict: 'D1',
     terms: [],
@@ -353,7 +353,8 @@ export function moneyFlow(listings) {
     if (l.budgetKind === 'project') value = l.budget;
     else if (l.budgetKind === 'day') value = l.budget * (l.dur ?? 20);
     else if (l.budgetKind === 'hour') value = l.budget * (l.dur ?? 20) * 8;
-    if (l.src === 'evergabe') totalContract += value;
+    // Categorize by what's being measured, not which source produced it.
+    if (l.budgetKind === 'project') totalContract += value;
     else totalDayRate += value;
     if (value >= 100_000) highValue.push({ ...l, projectedValue: value });
     if (l.city) byCity.set(l.city, (byCity.get(l.city) ?? 0) + value);

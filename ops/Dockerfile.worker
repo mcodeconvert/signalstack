@@ -26,12 +26,7 @@ RUN npm ci --workspaces --include-workspace-root --omit=optional
 
 COPY packages/core packages/core
 COPY packages/scraper packages/scraper
-COPY packages/web packages/web
 COPY db db
-
-# Generate the 5y synthetic corpus into the image so seed-from-demo can
-# populate Postgres on first boot
-RUN node packages/scraper/src/demo-gen.js
 
 # Switch to production for runtime
 ENV NODE_ENV=production
@@ -40,4 +35,6 @@ EXPOSE 3001
 HEALTHCHECK --interval=30s --timeout=5s --retries=5 --start-period=15s \
   CMD curl -fsS http://localhost:3001/health || exit 1
 
-CMD ["sh", "-c", "node db/migrate.js && node db/seed.js && node db/seed-from-demo.js && node packages/scraper/src/runner.js"]
+# Boot: migrate (idempotent) → seed dictionaries → start runner.
+# Runner detects empty listings table and auto-runs a real TED ingest.
+CMD ["sh", "-c", "node db/migrate.js && node db/seed.js && node packages/scraper/src/runner.js"]

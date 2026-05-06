@@ -43,13 +43,13 @@
     value={fmtEur(money.total)}
     sub="contract + day-rate proxy" />
   <Kpi
-    label="Public RFP value (eVergabe)"
+    label="Project / contract value"
     value={fmtEur(money.totalContract)}
-    sub={fmt(money.highValue.length) + ' high-value items > €100k'} />
+    sub={fmt(money.highValue.length) + ' high-value items ≥ €100k'} />
   <Kpi
-    label="Freelance day-rate value"
+    label="Day-rate work value (proxy)"
     value={fmtEur(money.totalDayRate)}
-    sub="day_rate × duration_days proxy" />
+    sub="day_rate × duration_days for freelance" />
   <Kpi
     label="Budget disclosure rate"
     value={(money.disclosureRate * 100).toFixed(0) + '%'}

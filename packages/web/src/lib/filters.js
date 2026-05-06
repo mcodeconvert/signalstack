@@ -2,7 +2,7 @@
  * Filter encode/decode shared between server and client.
  */
 export function defaultFilter() {
-  return { time: '5y', sources: ['gulp','freelance','twago','junico','evergabe'], lang: 'all', dict: 'D1', terms: [], mode: 'any', search: '' };
+  return { time: '5y', sources: ['ted','gulp','freelance','twago','junico','evergabe'], lang: 'all', dict: 'D1', terms: [], mode: 'any', search: '' };
 }
 
 export function parseFilter(searchParams) {

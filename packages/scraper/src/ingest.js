@@ -16,7 +16,10 @@ import { listingId } from '@signalstack/core/fingerprint';
 import { dedupeFingerprint } from '@signalstack/core/fingerprint';
 import { deriveHits } from '@signalstack/core/hits';
 import { EXTRACTORS } from './extractors/index.js';
-import { mapItem } from './extractors/freelance.js';
+import { mapItem as mapFreelance } from './extractors/freelance.js';
+import { mapItem as mapTed } from './extractors/ted.js';
+
+const ITEM_MAPPERS = { freelance: mapFreelance, ted: mapTed };
 
 /** @param {string[]} sourceIds */
 export async function runIngest(sourceIds = Object.keys(EXTRACTORS)) {
@@ -50,12 +53,14 @@ export async function runIngest(sourceIds = Object.keys(EXTRACTORS)) {
         const rawBlobId = rows[0]?.id ?? null;
         if (!rawBlobId) { dedup++; continue; }
 
-        // RSS-style: expand into many listings
+        // Bundle-style: expand _items into many listings (RSS-feed sources or paged APIs)
+        const mapper = ITEM_MAPPERS[sourceId];
         let listings = [];
-        if (sourceId === 'freelance' && raw._items) {
-          listings = raw._items.map(it => {
-            try { return mapItem(it); } catch { return null; }
-          }).filter(Boolean);
+        if (mapper && raw._items) {
+          for (const it of raw._items) {
+            try { listings.push(mapper(it)); }
+            catch (e) { parsedFail++; log.warn({ err: String(e?.message ?? e) }, 'item parse fail'); }
+          }
         } else {
           const r = await ext.parse(raw);
           if (r.status === 'ok') listings = [r.listing];

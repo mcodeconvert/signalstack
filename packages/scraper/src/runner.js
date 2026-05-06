@@ -22,10 +22,17 @@ let lastError = null;
 let inFlight = false;
 
 http.createServer(async (req, res) => {
-  if (req.url === '/health') {
-    const ok = !!lastSuccess && (Date.now() - lastSuccess.getTime()) < 8 * 24 * 3600 * 1000;
-    res.writeHead(ok ? 200 : 503, { 'content-type': 'application/json' });
-    res.end(JSON.stringify({ ok, lastSuccess, lastError, inFlight }));
+  if (req.url === '/health' || req.url === '/') {
+    // Liveness: return 200 if process is alive. Use /ready for "data fresh".
+    res.writeHead(200, { 'content-type': 'application/json' });
+    res.end(JSON.stringify({ ok: true, lastSuccess, lastError, inFlight }));
+    return;
+  }
+  if (req.url === '/ready') {
+    // Readiness: only true if a successful run happened in the last 8 days.
+    const ready = !!lastSuccess && (Date.now() - lastSuccess.getTime()) < 8 * 24 * 3600 * 1000;
+    res.writeHead(ready ? 200 : 503, { 'content-type': 'application/json' });
+    res.end(JSON.stringify({ ready, lastSuccess, lastError, inFlight }));
     return;
   }
   res.writeHead(404); res.end();

@@ -129,6 +129,35 @@ Once a month, ~10 minutes:
 - [ ] Backup file count in `BACKUP_DIR` matches expectation (~4–8 weekly)?
 - [ ] Last week's digest email received? (if SMTP configured)
 
+## Sources catalog · what's wired vs what's blocked
+
+### Active extractors (5)
+
+| ID | Source | Method | Records | Why |
+|---|---|---|---|---|
+| `ted` | TED — Tenders Electronic Daily | POST API v3, paged | ~600/wk DEU | Public domain by EU Reg. 1816/2003 |
+| `bund` | service.bund.de | RSS (Stellen + Ausschreibungen) | ~80/wk | RSS endpoints exempt from /Suche/ disallow |
+| `hn` | Hacker News | Algolia search API | ~50/wk | Public, free, intended for programmatic access |
+| `github` | GitHub | Search API | ~60/wk | Public, free, 60 req/min unauth |
+| `junico` | Junico.de | Sitemap + JSON-LD parse | ~25 active | robots.txt: `Allow: /` (fully open) |
+
+### Audited and not viable (the rest of the original list)
+
+| Source | Verdict | Reason |
+|---|---|---|
+| Freelance.de | ❌ FORBIDDEN | robots.txt explicitly bans crawling without written permission |
+| GULP.de | ⏸ DEFERRED | SPA, requires Playwright + reverse engineering of internal API |
+| Twago.de | ❌ DEAD | All variants 301-redirect to nothing useful |
+| eVergabe / DTAD | ❌ FORBIDDEN | DTAD robots.txt: `Disallow: /` |
+| Bundesanzeiger | ⏸ DEFERRED | JS-rendered, redirects, complex auth flow |
+| Insolvenzbekanntmachungen | ❌ FORBIDDEN | New domain robots.txt: `Disallow: /` |
+| KfW + BAFA | ⏸ DEFERRED | Public RSS endpoints not discoverable; URL structure changes |
+| Bundesgesetzblatt | ⏸ DEFERRED | bgbl.de archive only goes 1949–2022 at the public path |
+| OMR Reviews | ⏸ DEFERRED | /reviews/categories returns 404; need to map their actual data path |
+| Trusted.de | ⏸ DEFERRED | robots.txt 301-redirects, blocked at WAF level |
+
+The DEFERRED ones can be revisited with more time. The FORBIDDEN ones cannot be scraped at all without written permission from the operators.
+
 ## Phase 4 expansion (future)
 
 Each new source = one file:

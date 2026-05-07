@@ -25,6 +25,13 @@ import { mapItem as mapJunico } from './extractors/junico.js';
 import { mapItem as mapFreelancerMap } from './extractors/freelancermap.js';
 import { mapItem as mapRemoteOK } from './extractors/remoteok.js';
 import { mapItem as mapWwr } from './extractors/wwr.js';
+import { mapItem as mapRemotive } from './extractors/remotive.js';
+import { mapItem as mapJobicy } from './extractors/jobicy.js';
+import { mapItem as mapArbeitnow } from './extractors/arbeitnow.js';
+import { mapItem as mapHimalayas } from './extractors/himalayas.js';
+import { mapItem as mapJobspresso } from './extractors/jobspresso.js';
+import { mapItem as mapNoFluffJobs } from './extractors/nofluffjobs.js';
+import { mapItem as mapWorkingnomads } from './extractors/workingnomads.js';
 
 const ITEM_MAPPERS = {
   freelance: mapFreelance,
@@ -35,7 +42,14 @@ const ITEM_MAPPERS = {
   junico: mapJunico,
   freelancermap: mapFreelancerMap,
   remoteok: mapRemoteOK,
-  wwr: mapWwr
+  wwr: mapWwr,
+  remotive: mapRemotive,
+  jobicy: mapJobicy,
+  arbeitnow: mapArbeitnow,
+  himalayas: mapHimalayas,
+  jobspresso: mapJobspresso,
+  nofluffjobs: mapNoFluffJobs,
+  workingnomads: mapWorkingnomads
 };
 
 /** @param {string[]} sourceIds */

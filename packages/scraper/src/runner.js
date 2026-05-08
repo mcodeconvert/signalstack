@@ -26,6 +26,7 @@ import http from 'node:http';
 import cron from 'node-cron';
 import { runIngest } from './ingest.js';
 import { refreshStats } from './stats.js';
+import { runEnrichment } from './enrich.js';
 import { db, shutdown } from './db.js';
 import { log } from './log.js';
 
@@ -117,6 +118,14 @@ async function runOnce(sources, bucketName = 'manual') {
     log.info({ bucket: bucketName, sources: sources ?? 'ACTIVE_SOURCE_IDS' }, 'ingest start');
     const r = await runIngest(sources);
     log.info({ bucket: bucketName, runId: r.runId, summary: r.summary }, 'ingest done');
+    // W4: enrichment passes — backfill canonical_role/employer/buyer + monthly budget.
+    // Idempotent; bounded to 5k rows per pass; fast.
+    try {
+      const enrichSummary = await runEnrichment();
+      log.info({ bucket: bucketName, enrichSummary }, 'enrichment done');
+    } catch (e) {
+      log.warn({ err: String(e?.message ?? e) }, 'enrichment failed (non-fatal)');
+    }
     // depth-metrics snapshot (every bucket — cheap, idempotent, fresh row each time)
     try {
       const sql = db();

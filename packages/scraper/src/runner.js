@@ -80,6 +80,36 @@ http.createServer(async (req, res) => {
     runOnce(undefined, 'manual').catch(() => {});  // detached — full active set
     return;
   }
+  if (req.method === 'POST' && req.url?.startsWith('/sql')) {
+    // W4+: token-gated SELECT-only SQL endpoint for data extraction.
+    // Strict allowlist: must START with SELECT (case-insensitive, ignoring leading whitespace/parens).
+    const tok = req.headers['x-trigger-token'];
+    if (!TRIGGER_TOKEN || tok !== TRIGGER_TOKEN) {
+      res.writeHead(401, { 'content-type': 'application/json' });
+      res.end(JSON.stringify({ error: 'unauthorized' }));
+      return;
+    }
+    let body = '';
+    for await (const chunk of req) body += chunk;
+    let payload;
+    try { payload = JSON.parse(body); } catch { payload = null; }
+    const q = String(payload?.query ?? '').trim();
+    if (!/^[\s(]*select\b/i.test(q)) {
+      res.writeHead(400, { 'content-type': 'application/json' });
+      res.end(JSON.stringify({ error: 'only SELECT queries allowed' }));
+      return;
+    }
+    try {
+      const sql = db();
+      const rows = await sql.unsafe(q);
+      res.writeHead(200, { 'content-type': 'application/json' });
+      res.end(JSON.stringify({ rows, count: rows.length }));
+    } catch (err) {
+      res.writeHead(500, { 'content-type': 'application/json' });
+      res.end(JSON.stringify({ error: String(err?.message ?? err) }));
+    }
+    return;
+  }
   if (req.method === 'POST' && req.url?.startsWith('/reset')) {
     const tok = req.headers['x-trigger-token'];
     if (!TRIGGER_TOKEN || tok !== TRIGGER_TOKEN) {

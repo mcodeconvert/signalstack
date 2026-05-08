@@ -25,13 +25,10 @@ import { mapItem as mapJunico } from './extractors/junico.js';
 import { mapItem as mapFreelancerMap } from './extractors/freelancermap.js';
 import { mapItem as mapRemoteOK } from './extractors/remoteok.js';
 import { mapItem as mapWwr } from './extractors/wwr.js';
-import { mapItem as mapRemotive } from './extractors/remotive.js';
-import { mapItem as mapJobicy } from './extractors/jobicy.js';
 import { mapItem as mapArbeitnow } from './extractors/arbeitnow.js';
-import { mapItem as mapHimalayas } from './extractors/himalayas.js';
-import { mapItem as mapJobspresso } from './extractors/jobspresso.js';
 import { mapItem as mapNoFluffJobs } from './extractors/nofluffjobs.js';
-import { mapItem as mapWorkingnomads } from './extractors/workingnomads.js';
+// W1: dropped from active set (low DACH-SaaS-mining ROI):
+//   jobicy, remotive, workingnomads, himalayas, jobspresso
 
 const ITEM_MAPPERS = {
   freelance: mapFreelance,
@@ -43,13 +40,8 @@ const ITEM_MAPPERS = {
   freelancermap: mapFreelancerMap,
   remoteok: mapRemoteOK,
   wwr: mapWwr,
-  remotive: mapRemotive,
-  jobicy: mapJobicy,
   arbeitnow: mapArbeitnow,
-  himalayas: mapHimalayas,
-  jobspresso: mapJobspresso,
-  nofluffjobs: mapNoFluffJobs,
-  workingnomads: mapWorkingnomads
+  nofluffjobs: mapNoFluffJobs
 };
 
 /** @param {string[]} sourceIds */

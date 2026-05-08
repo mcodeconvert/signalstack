@@ -1,8 +1,11 @@
 /**
  * Filter encode/decode shared between server and client.
  */
+// W1: 14 → 10 active sources. Dropped: jobicy, remotive, workingnomads, himalayas.
+const ACTIVE_SOURCES = ['ted','bund','hn','github','junico','freelancermap','remoteok','wwr','arbeitnow','nofluffjobs'];
+
 export function defaultFilter() {
-  return { time: '5y', sources: ['ted','bund','hn','github','junico','freelancermap','remoteok','wwr','remotive','jobicy','arbeitnow','himalayas','nofluffjobs','workingnomads'], lang: 'all', dict: 'D1', terms: [], mode: 'any', search: '' };
+  return { time: '5y', sources: [...ACTIVE_SOURCES], lang: 'all', dict: 'D1', terms: [], mode: 'any', search: '' };
 }
 
 export function parseFilter(searchParams) {
@@ -21,7 +24,7 @@ export function parseFilter(searchParams) {
 export function encodeFilter(f) {
   const u = new URLSearchParams();
   if (f.time && f.time !== '5y') u.set('t', f.time);
-  if (f.sources && f.sources.length < 14) u.set('s', f.sources.join(','));
+  if (f.sources && f.sources.length < ACTIVE_SOURCES.length) u.set('s', f.sources.join(','));
   if (f.lang && f.lang !== 'all') u.set('l', f.lang);
   if (f.dict && f.dict !== 'D1') u.set('d', f.dict);
   if (f.terms?.length) u.set('terms', f.terms.join(','));

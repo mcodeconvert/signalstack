@@ -22,6 +22,9 @@ const FEEDS = [
   'https://weworkremotely.com/categories/remote-business-jobs.rss'
 ];
 
+// W1: cap WWR at 150 records per run (was uncapped, was producing ~307).
+const WWR_MAX = Number(process.env.WWR_MAX ?? 150);
+
 let _Parser = null;
 async function getParser() {
   if (_Parser !== null) return _Parser;
@@ -41,8 +44,10 @@ const extractor = {
 
   async *fetch(since, signal) {
     const parser = await getParser();
+    let yielded = 0;
     for (const url of FEEDS) {
       if (signal?.aborted) return;
+      if (yielded >= WWR_MAX) return;
       let items, body;
       try {
         if (parser) {
@@ -59,7 +64,11 @@ const extractor = {
         yield { ...makeRaw('wwr', url, JSON.stringify({ error: String(err.message ?? err) })), httpStatus: 0, _items: [] };
         continue;
       }
-      yield { ...makeRaw('wwr', url, body), _items: items };
+      // Cap items per feed so the global WWR_MAX is respected.
+      const remaining = WWR_MAX - yielded;
+      const capped = Array.isArray(items) ? items.slice(0, remaining) : items;
+      yielded += Array.isArray(capped) ? capped.length : 0;
+      yield { ...makeRaw('wwr', url, body), _items: capped };
       await sleep(1500);
     }
   },

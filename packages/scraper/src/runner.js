@@ -89,6 +89,15 @@ async function runOnce() {
     log.info({ runId: r.runId, summary: r.summary }, 'ingest done');
     log.info('stats refresh start');
     await refreshStats();
+    // W1: snapshot per-source signal density so we can track strategy impact over time.
+    try {
+      const sql = db();
+      const [{ refresh_extraction_depth_metrics: rowsInserted }] =
+        await sql`SELECT refresh_extraction_depth_metrics()`;
+      log.info({ rowsInserted }, 'extraction_depth_metrics snapshot');
+    } catch (e) {
+      log.warn({ err: String(e?.message ?? e) }, 'depth-metrics snapshot failed (non-fatal)');
+    }
     lastSuccess = new Date();
     lastError = null;
     log.info({ at: lastSuccess.toISOString() }, 'run complete');

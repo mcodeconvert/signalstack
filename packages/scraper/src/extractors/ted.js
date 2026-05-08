@@ -23,7 +23,7 @@ const FIELDS = [
 
 const REQ_DELAY_MS = Number(process.env.TED_DELAY_MS ?? 2000);
 const PAGE_SIZE = Number(process.env.TED_PAGE_SIZE ?? 250);
-const MAX_PAGES = Number(process.env.TED_MAX_PAGES ?? 20);              // 20 × 250 = 5 000 notices per run
+const MAX_PAGES = Number(process.env.TED_MAX_PAGES ?? 10);              // W1: 10 × 250 = 2 500 notices per run (was 20 × 250 = 5 000)
 const SINCE_DAYS_DEFAULT = Number(process.env.TED_SINCE_DAYS ?? 365);   // first run pulls ~1 year history
 
 // NUTS DE region prefix → city/Bundesland approximation

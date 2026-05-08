@@ -5,3 +5,4 @@ export * from './normalize.js';
 export * from './fingerprint.js';
 export * from './types.js';
 export * from './words.js';
+export * from './canonical-role.js';

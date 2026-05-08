@@ -7,7 +7,7 @@
     const next = { ...filter, ...patch };
     const u = new URLSearchParams();
     if (next.time && next.time !== '5y') u.set('t', next.time);
-    if (next.sources && next.sources.length < 5) u.set('s', next.sources.join(','));
+    if (next.sources && sources && next.sources.length < sources.length) u.set('s', next.sources.join(','));
     if (next.lang && next.lang !== 'all') u.set('l', next.lang);
     if (next.dict && next.dict !== 'D1') u.set('d', next.dict);
     if (next.terms?.length) u.set('terms', next.terms.join(','));

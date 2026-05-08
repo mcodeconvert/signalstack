@@ -9,11 +9,12 @@
  */
 import { makeRaw, defaultEnrich } from './_base.js';
 import { detectLang, normalizeGeo, parseDate, parseBudget } from '@signalstack/core/normalize';
+import { DICTS } from '@signalstack/core/dict';
 
 const UA = 'SignalStack/0.1 (+ops@parallelship.com)';
 const SITEMAP = 'https://www.freelancermap.de/sitemaps/projects-0.xml';
 const REQ_DELAY_MS = Number(process.env.FREELANCERMAP_DELAY_MS ?? 2000);
-const MAX_PROJECTS = Number(process.env.FREELANCERMAP_MAX ?? 80);
+const MAX_PROJECTS = Number(process.env.FREELANCERMAP_MAX ?? 1500);  // W2: 80 → 1500 (highest-density-per-record source)
 const SINCE_DAYS = Number(process.env.FREELANCERMAP_SINCE_DAYS ?? 30);
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
@@ -133,6 +134,10 @@ export function mapItem(it) {
 
   const lang = detectLang(title + ' ' + description) ?? 'DE';
 
+  // W3: tech_stack — extract D1 Tools matches from title + description
+  // (SAP, DATEV, React, Postgres, Snowflake, etc.).
+  const techStack = extractTechStack(title + ' ' + description);
+
   return {
     sourceId: 'freelancermap',
     sourceUrl: url,
@@ -148,8 +153,21 @@ export function mapItem(it) {
     city,
     bundesland,
     remote,
-    clientHash: null
+    clientHash: null,
+    techStack
   };
+}
+
+/** Returns a deduped list of D1 Tools canonical terms found in the haystack. */
+function extractTechStack(haystack) {
+  if (!haystack) return [];
+  const found = new Set();
+  for (const t of DICTS.D1.terms) {
+    // Reset regex state (D1 patterns use /g flag)
+    t.pattern.lastIndex = 0;
+    if (t.pattern.test(haystack)) found.add(t.canonical);
+  }
+  return Array.from(found);
 }
 
 function decode(s) {

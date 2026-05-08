@@ -12,6 +12,7 @@
     "./trend": "./src/trend.js",
     "./normalize": "./src/normalize.js",
     "./fingerprint": "./src/fingerprint.js",
-    "./words": "./src/words.js"
+    "./words": "./src/words.js",
+    "./canonical-role": "./src/canonical-role.js"
   }
 }

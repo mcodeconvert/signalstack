@@ -25,13 +25,10 @@ import { mapItem as mapJunico } from './extractors/junico.js';
 import { mapItem as mapFreelancerMap } from './extractors/freelancermap.js';
 import { mapItem as mapRemoteOK } from './extractors/remoteok.js';
 import { mapItem as mapWwr } from './extractors/wwr.js';
-import { mapItem as mapRemotive } from './extractors/remotive.js';
-import { mapItem as mapJobicy } from './extractors/jobicy.js';
 import { mapItem as mapArbeitnow } from './extractors/arbeitnow.js';
-import { mapItem as mapHimalayas } from './extractors/himalayas.js';
-import { mapItem as mapJobspresso } from './extractors/jobspresso.js';
 import { mapItem as mapNoFluffJobs } from './extractors/nofluffjobs.js';
-import { mapItem as mapWorkingnomads } from './extractors/workingnomads.js';
+// W1: dropped from active set (low DACH-SaaS-mining ROI):
+//   jobicy, remotive, workingnomads, himalayas, jobspresso
 
 const ITEM_MAPPERS = {
   freelance: mapFreelance,
@@ -43,13 +40,8 @@ const ITEM_MAPPERS = {
   freelancermap: mapFreelancerMap,
   remoteok: mapRemoteOK,
   wwr: mapWwr,
-  remotive: mapRemotive,
-  jobicy: mapJobicy,
   arbeitnow: mapArbeitnow,
-  himalayas: mapHimalayas,
-  jobspresso: mapJobspresso,
-  nofluffjobs: mapNoFluffJobs,
-  workingnomads: mapWorkingnomads
+  nofluffjobs: mapNoFluffJobs
 };
 
 /** @param {string[]} sourceIds */
@@ -102,22 +94,41 @@ export async function runIngest(sourceIds = ACTIVE_SOURCE_IDS) {
           const enriched = await ext.enrich(l);
           const id = listingId(enriched.sourceId, enriched.sourceUrl, enriched.postedAt);
           const fp = dedupeFingerprint({ title: enriched.title, budgetEur: enriched.budgetEur, postedAt: enriched.postedAt });
+          // W3: write the new high-signal columns. All optional; null-safe.
           const ins = await sql`
             INSERT INTO listings(id, source_id, source_url, posted_at, language, title, description,
                                  category, cpv_code, budget_eur, budget_kind, duration_days,
-                                 city, bundesland, remote, raw_blob_id, schema_version, is_canonical, dedupe_fingerprint)
+                                 city, bundesland, remote, raw_blob_id, schema_version, is_canonical, dedupe_fingerprint,
+                                 subtype, topic_cluster, canonical_role, canonical_employer, tech_stack, cpv_cluster)
             VALUES (${id}, ${enriched.sourceId}, ${enriched.sourceUrl}, ${enriched.postedAt},
                     ${enriched.language ?? null}, ${enriched.title}, ${enriched.description ?? null},
                     ${enriched.category ?? null}, ${enriched.cpvCode ?? null}, ${enriched.budgetEur ?? null},
                     ${enriched.budgetKind ?? null}, ${enriched.durationDays ?? null},
                     ${enriched.city ?? null}, ${enriched.bundesland ?? null}, ${enriched.remote ?? null},
-                    ${rawBlobId}, 1, true, ${fp})
+                    ${rawBlobId}, 1, true, ${fp},
+                    ${enriched.subtype ?? null}, ${enriched.topicCluster ?? null},
+                    ${enriched.canonicalRole ?? null}, ${enriched.canonicalEmployer ?? null},
+                    ${enriched.techStack ?? []}, ${enriched.cpvCluster ?? null})
             ON CONFLICT (id) DO NOTHING
             RETURNING id
           `;
           if (ins.length === 0) { dedup++; continue; }
           inserted++;
           parsedOk++;
+
+          // W3: snapshot github stars_velocity (new row per repo per UTC date; idempotent on PK).
+          if (sourceId === 'github' && enriched._velocity?.repoFullName) {
+            const v = enriched._velocity;
+            await sql`
+              INSERT INTO github_stars_velocity(repo_full_name, snapshot_at, stars, forks, last_commit, topic_cluster)
+              VALUES (${v.repoFullName}, current_date, ${v.stars}, ${v.forks ?? null}, ${v.lastCommit ?? null}, ${v.topicCluster ?? null})
+              ON CONFLICT (repo_full_name, snapshot_at) DO UPDATE
+                SET stars = EXCLUDED.stars,
+                    forks = EXCLUDED.forks,
+                    last_commit = EXCLUDED.last_commit,
+                    topic_cluster = EXCLUDED.topic_cluster
+            `;
+          }
 
           // term hits
           const hits = deriveHits({ title: enriched.title, description: enriched.description }, id);

@@ -85,6 +85,17 @@ export function mapItem(h) {
   const postedAt = h.created_at ? parseDate(h.created_at) : new Date();
   const lang = detectLang(title + ' ' + story.slice(0, 200)) ?? 'EN';
 
+  // W3: subtype classification from title prefix.
+  // Show HN posts are competitive intel (founder + product launch).
+  // Ask HN posts are pain mining (problem statement).
+  // Everything else is tech discussion.
+  let subtype = 'discuss';
+  if (/^show\s+hn\b/i.test(title)) subtype = 'show';
+  else if (/^ask\s+hn\b/i.test(title)) subtype = 'ask';
+
+  // W3: topic_cluster derived from the query that surfaced this post.
+  const topicCluster = h._q ? slugifyQuery(h._q) : null;
+
   // Use HN points as a soft "value" proxy on a log scale (just for ranking)
   // No budget claim — leave budgetEur null.
   return {
@@ -102,8 +113,14 @@ export function mapItem(h) {
     city: null,
     bundesland: null,
     remote: false,
-    clientHash: null
+    clientHash: null,
+    subtype,
+    topicCluster
   };
+}
+
+function slugifyQuery(q) {
+  return String(q).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60) || null;
 }
 
 export default extractor;

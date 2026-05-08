@@ -7,10 +7,11 @@
  */
 import { makeRaw, defaultEnrich } from './_base.js';
 import { detectLang, parseDate, normalizeGeo } from '@signalstack/core/normalize';
+import { canonicalRole, canonicalEmployer } from '@signalstack/core/canonical-role';
 
 const UA = 'SignalStack/0.1 (+ops@parallelship.com)';
 const API = 'https://nofluffjobs.com/api/posting';
-const LIMIT = Number(process.env.NOFLUFFJOBS_LIMIT ?? 200);
+const LIMIT = Number(process.env.NOFLUFFJOBS_LIMIT ?? 800);  // W2: 200 → 800 (clean salary p50 + role-recurrence signal)
 
 const CUR_TO_EUR = { PLN: 0.23, USD: 0.92, EUR: 1.0, GBP: 1.18, CHF: 1.05 };
 
@@ -99,7 +100,11 @@ export function mapItem(j) {
     city,
     bundesland,
     remote,
-    clientHash: null
+    clientHash: null,
+    // W3: canonical role + employer enable the role-recurrence detector
+    // (v_role_repost_30d view → BP NEW-A "Role-Recurrence Anomaly Alert").
+    canonicalRole: canonicalRole(title),
+    canonicalEmployer: canonicalEmployer(company)
   };
 }
 

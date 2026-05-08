@@ -7,6 +7,7 @@
  */
 import { makeRaw, defaultEnrich } from './_base.js';
 import { detectLang, parseDate, normalizeGeo } from '@signalstack/core/normalize';
+import { canonicalRole, canonicalEmployer } from '@signalstack/core/canonical-role';
 
 const UA = 'SignalStack/0.1 (+ops@parallelship.com)';
 const API = 'https://nofluffjobs.com/api/posting';
@@ -99,7 +100,11 @@ export function mapItem(j) {
     city,
     bundesland,
     remote,
-    clientHash: null
+    clientHash: null,
+    // W3: canonical role + employer enable the role-recurrence detector
+    // (v_role_repost_30d view → BP NEW-A "Role-Recurrence Anomaly Alert").
+    canonicalRole: canonicalRole(title),
+    canonicalEmployer: canonicalEmployer(company)
   };
 }
 

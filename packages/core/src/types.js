@@ -25,6 +25,13 @@
  * @property {string} [bundesland]
  * @property {boolean} [remote]
  * @property {string} [clientHash]
+ * @property {string} [subtype] W3: per-source subtype (hn 'show'/'ask'/'discuss', bund 'rfp'/'stelle', etc.)
+ * @property {string} [topicCluster] W3: github topic-or-query cluster id
+ * @property {string} [canonicalRole] W3: normalized role slug for repost detection
+ * @property {string} [canonicalEmployer] W3: normalized employer slug
+ * @property {string[]} [techStack] W3: detected tech tags (D1 Tools dictionary matches)
+ * @property {string} [cpvCluster] W3: TED CPV-code 2-digit prefix
+ * @property {object} [_velocity] W3: github-only — { stars, forks, lastCommit } for stars_velocity table
  */
 
 /**

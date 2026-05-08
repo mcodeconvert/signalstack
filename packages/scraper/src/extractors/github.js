@@ -100,12 +100,45 @@ const extractor = {
   enrich: defaultEnrich
 };
 
+// Maps the raw GitHub query string to a stable cluster id used in
+// listings.topic_cluster + github_stars_velocity.topic_cluster.
+function clusterFor(q) {
+  if (!q) return null;
+  const s = String(q).toLowerCase();
+  if (s.includes('xrechnung') || s.includes('zugferd') || s.includes('e-rechnung') || s.includes('erechnung') || s.includes('topic:e-invoicing')) return 'e-invoicing';
+  if (s.includes('datev') || s.includes('sevdesk') || s.includes('lexware') || s.includes('buchhaltung') || s.includes('topic:german-bookkeeping')) return 'german-bookkeeping';
+  if (s.includes('bfsg') || s.includes('barrierefreiheit')) return 'bfsg-a11y';
+  if (s.includes('kim') || s.includes('pflegedokumentation')) return 'kim-pflege';
+  if (s.includes('pflegekompetenzgesetz') || s.includes('beep')) return 'beep-pflege';
+  if (s.includes('gobd')) return 'gobd';
+  if (s.includes('mittelstand')) return 'mittelstand';
+  if (s.includes('steuerberater')) return 'steuerberater';
+  if (s.includes('topic:germany') || s.includes('topic:berlin')) return 'germany-saas';
+  if (s.includes('sap')) return 'sap';
+  return 'other';
+}
+
 export function mapItem(r) {
   const title = `${r.full_name} — ${r.description ?? ''}`.slice(0, 320);
   const description = String(r.description ?? '').slice(0, 2000);
   const sourceUrl = r.html_url ?? `https://github.com/${r.full_name}`;
   const postedAt = r.updated_at ? parseDate(r.updated_at) : new Date();
   const lang = detectLang(description) ?? 'EN';
+
+  // W3: topic_cluster derived from the query (`_q`) that surfaced this repo.
+  const topicCluster = clusterFor(r._q);
+
+  // W3: stars-velocity payload — ingest.js writes this to github_stars_velocity.
+  // pushed_at is the most useful "last commit" proxy in the GH search response.
+  const pushedAt = r.pushed_at ? new Date(r.pushed_at) : null;
+  const _velocity = {
+    repoFullName: r.full_name,
+    stars: Number(r.stargazers_count ?? 0),
+    forks: Number(r.forks_count ?? 0),
+    lastCommit: pushedAt && !Number.isNaN(pushedAt.getTime()) ? pushedAt : null,
+    topicCluster
+  };
+
   return {
     sourceId: 'github',
     sourceUrl,
@@ -121,7 +154,9 @@ export function mapItem(r) {
     city: null,
     bundesland: null,
     remote: true,
-    clientHash: null
+    clientHash: null,
+    topicCluster,
+    _velocity
   };
 }
 

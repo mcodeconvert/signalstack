@@ -144,7 +144,9 @@ export function mapItem(n) {
     durationDays: null,
     city,
     bundesland,
-    remote: false
+    remote: false,
+    // W3: cpv_cluster = first 2 digits of CPV code → cheap clustering bucket.
+    cpvCluster: cpv ? String(cpv).slice(0, 2) : null
   };
 }
 

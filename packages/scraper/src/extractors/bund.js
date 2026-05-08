@@ -9,6 +9,7 @@
 import { XMLParser } from 'fast-xml-parser';
 import { makeRaw, defaultEnrich } from './_base.js';
 import { detectLang, normalizeGeo, parseDate } from '@signalstack/core/normalize';
+import { canonicalEmployer } from '@signalstack/core/canonical-role';
 
 const FEEDS = [
   { url: 'https://www.service.bund.de/SiteGlobals/Functions/RSSFeed/RSSGenerator_Stellen.xml',         kind: 'stellen' },
@@ -91,6 +92,10 @@ export function mapItem(it) {
   const cityRaw  = (description.match(/Ort:\s*(?:\d{5}\s+)?([^<\n,]+?)(?:\s+(?:Veröffentlichung|Bewerbungs|<|$))/) ?? [])[1]?.trim() ?? null;
   const { city, bundesland } = normalizeGeo(cityRaw);
 
+  // W3: subtype directly from the feed kind we set during fetch.
+  // 'rfp' = sub-EU-threshold federal RFPs, 'stelle' = federal job postings.
+  const subtype = it._kind === 'ausschreibung' ? 'rfp' : 'stelle';
+
   return {
     sourceId: 'bund',
     sourceUrl,
@@ -98,7 +103,7 @@ export function mapItem(it) {
     description: [employer, cityRaw].filter(Boolean).join(' · ') || description.slice(0, 320),
     postedAt,
     language: lang,
-    category: it._kind === 'ausschreibung' ? 'Procurement' : 'Public-sector job',
+    category: subtype === 'rfp' ? 'Procurement' : 'Public-sector job',
     cpvCode: null,
     budgetEur: null,
     budgetKind: null,
@@ -106,7 +111,9 @@ export function mapItem(it) {
     city,
     bundesland,
     remote: false,
-    clientHash: null
+    clientHash: null,
+    subtype,
+    canonicalEmployer: employer ? canonicalEmployer(employer) : null
   };
 }
 

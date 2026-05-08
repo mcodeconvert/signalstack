@@ -25,7 +25,13 @@ const QUERIES = [
   'Buchhaltung in:description,readme language:typescript',
   'eRechnung OR e-rechnung in:description,readme',
   'topic:germany topic:saas',
-  'topic:berlin topic:startup'
+  'topic:berlin topic:startup',
+  // W2: 5 new clusters tracking BP-relevant regulatory + healthcare AI topics
+  'BFSG OR Barrierefreiheit in:description,readme',           // BP #3 / accessibility scanning
+  'KIM Pflege OR Pflegedokumentation in:description,readme',  // BP #5 KIM-Pflege ecosystem
+  'Pflegekompetenzgesetz OR BEEP-Gesetz in:description,readme', // BP #5 BEEP heilkunde-workflow
+  'topic:e-invoicing',                                          // iter-1 cluster of 131 repos
+  'topic:german-bookkeeping'                                    // iter-1 cluster of 114 repos
 ];
 
 const PER_PAGE = 50;

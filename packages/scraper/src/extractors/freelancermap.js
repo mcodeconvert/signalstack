@@ -13,7 +13,7 @@ import { detectLang, normalizeGeo, parseDate, parseBudget } from '@signalstack/c
 const UA = 'SignalStack/0.1 (+ops@parallelship.com)';
 const SITEMAP = 'https://www.freelancermap.de/sitemaps/projects-0.xml';
 const REQ_DELAY_MS = Number(process.env.FREELANCERMAP_DELAY_MS ?? 2000);
-const MAX_PROJECTS = Number(process.env.FREELANCERMAP_MAX ?? 80);
+const MAX_PROJECTS = Number(process.env.FREELANCERMAP_MAX ?? 1500);  // W2: 80 → 1500 (highest-density-per-record source)
 const SINCE_DAYS = Number(process.env.FREELANCERMAP_SINCE_DAYS ?? 30);
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }

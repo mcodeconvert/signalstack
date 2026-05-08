@@ -10,7 +10,7 @@ import { detectLang, parseDate, normalizeGeo } from '@signalstack/core/normalize
 
 const UA = 'SignalStack/0.1 (+ops@parallelship.com)';
 const API = 'https://nofluffjobs.com/api/posting';
-const LIMIT = Number(process.env.NOFLUFFJOBS_LIMIT ?? 200);
+const LIMIT = Number(process.env.NOFLUFFJOBS_LIMIT ?? 800);  // W2: 200 → 800 (clean salary p50 + role-recurrence signal)
 
 const CUR_TO_EUR = { PLN: 0.23, USD: 0.92, EUR: 1.0, GBP: 1.18, CHF: 1.05 };
 

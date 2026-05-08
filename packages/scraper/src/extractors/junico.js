@@ -12,6 +12,7 @@ import { detectLang, parseDate, normalizeGeo, parseBudget } from '@signalstack/c
 const UA = 'SignalStack/0.1 (+ops@parallelship.com)';
 const SITEMAP = 'https://www.junico.de/sitemap.xml';
 const REQ_DELAY_MS = Number(process.env.JUNICO_DELAY_MS ?? 2000);
+const MAX_PROJECTS = Number(process.env.JUNICO_MAX ?? 150);  // W2: cap iteration at 150 (sitemap usually has 25-50; safety ceiling)
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
@@ -37,7 +38,10 @@ const extractor = {
       return;
     }
 
-    for (const url of urls) {
+    // W2: cap at MAX_PROJECTS for safety. Sitemap is sorted by lastmod-desc-implicit,
+    // so head-slice = freshest projects.
+    const targets = urls.slice(0, MAX_PROJECTS);
+    for (const url of targets) {
       if (signal?.aborted) return;
       try {
         const res = await fetch(url, { headers: { 'user-agent': UA } });

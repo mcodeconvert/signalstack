@@ -13,6 +13,7 @@
     "./normalize": "./src/normalize.js",
     "./fingerprint": "./src/fingerprint.js",
     "./words": "./src/words.js",
+    "./probe": "./src/probe.js",
     "./canonical-role": "./src/canonical-role.js"
   }
 }

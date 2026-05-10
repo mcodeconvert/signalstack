@@ -134,7 +134,8 @@ function cacheKey(spec) {
   return JSON.stringify({
     t: spec.time, s: [...(spec.sources ?? [])].sort().join(','),
     l: spec.lang, d: spec.dict, terms: [...(spec.terms ?? [])].sort().join(','),
-    m: spec.mode, q: spec.search ?? '', v: spec.vertical ?? ''
+    m: spec.mode, q: spec.search ?? '', v: spec.vertical ?? '',
+    wd: spec.withDescription ? 1 : 0
   });
 }
 
@@ -196,6 +197,7 @@ async function filterListingsDb(spec, anchor) {
   const langClause = spec.lang === 'all' ? sql`` : sql`AND l.language = ${spec.lang}`;
   const searchClause = spec.search ? sql`AND l.title ~* ${spec.search}` : sql``;
   const idClause = pool ? sql`AND l.id = ANY(${[...pool]}::text[])` : sql``;
+  const descCol = spec.withDescription ? sql`, l.description` : sql``;
 
   const rows = await sql`
     SELECT
@@ -204,6 +206,7 @@ async function filterListingsDb(spec, anchor) {
       l.category AS cat, l.cpv_code AS cpv,
       l.budget_eur AS budget, l.budget_kind AS budget_kind,
       l.duration_days AS dur, l.remote
+      ${descCol}
     FROM listings l
     WHERE l.is_canonical = true
       AND l.posted_at >= ${cutoff.toISOString().slice(0,10)}::date
@@ -239,6 +242,7 @@ async function filterListingsDb(spec, anchor) {
     sourceUrl: r.source_url,
     lang: r.lang,
     title: r.title,
+    description: r.description ?? '',
     city: r.city,
     bundesland: r.bundesland,
     cat: r.cat,

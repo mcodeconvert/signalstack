@@ -49,14 +49,6 @@ const TITLES = [
   'Tableau Dashboard Mittelstand'
 ];
 
-const CPV = [
-  ['72000000','IT services'], ['72200000','Software development'],
-  ['72260000','Software-related'], ['72300000','Data services'],
-  ['72500000','Computer services'], ['79410000','Business consulting'],
-  ['72600000','Computer support'], ['72100000','Hardware consultancy'],
-  ['48000000','Software packages'], ['71600000','Technical testing']
-];
-
 const SOURCE_BUDGET = {
   gulp:      { mean: 780, sd: 220, kind: 'day',     hasBudget: 0.85 },
   freelance: { mean: 620, sd: 180, kind: 'day',     hasBudget: 0.78 },
@@ -64,6 +56,7 @@ const SOURCE_BUDGET = {
   junico:    { mean: 25,  sd: 7,   kind: 'hour',    hasBudget: 0.94 },
   evergabe:  { mean: 80000, sd: 35000, kind: 'project', hasBudget: 0.92 }
 };
+const DEFAULT_BUDGET = { mean: 500, sd: 150, kind: 'day', hasBudget: 0.5 };
 
 function lcg(seed){ let s=seed>>>0||1; return ()=>{ s=(s*1664525+1013904223)>>>0; return s/4294967296; }; }
 function noise(rnd, mean, sd){ const u=Math.max(rnd(),1e-9), v=rnd(); return mean + sd*Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v); }
@@ -104,16 +97,16 @@ function makeListing(seq, src, w, rnd){
       else if(phase===1) mod = 0.9 + 0.2*Math.sin(t*Math.PI);
       else if(phase===2) mod = 1.55 - 1.0*t;
       else mod = (t > 0.55 ? 1.1 + 1.2*(t-0.55) : 0.6);
-      const srcMod = src === 'evergabe' ? 0.55 : src === 'junico' ? 0.65 : 1;
+      const srcMod = src === 'junico' ? 0.65 : 1;
       const p = Math.min(0.85, baseP * mod * srcMod);
       if (rnd() < p) hits.push(`${dk}:${terms[ti].canonical}`);
     }
   }
 
-  const bs = SOURCE_BUDGET[src];
+  const bs = SOURCE_BUDGET[src] ?? DEFAULT_BUDGET;
   const hasB = rnd() < bs.hasBudget;
   const budget = hasB ? Math.max(0, Math.round(noise(rnd, bs.mean, bs.sd))) : null;
-  const cpv = src === 'evergabe' ? CPV[Math.floor(rnd() * CPV.length)][0] : null;
+  const cpv = null;
   const remote = rnd() < 0.45;
   const dur = Math.round(20 + 100*rnd());
   const url = `https://${src}.example/listing/${seq}`;
@@ -136,7 +129,7 @@ function generate() {
     const rnd = lcg(srcSeed(src));
     for (let w=0; w<WEEKS; w++) {
       const t = w/WEEKS;
-      const trend = src==='evergabe' ? 1 + 0.4*t : 1 + 0.7*t;
+      const trend = 1 + 0.7*t;
       const season = 1 + 0.18*Math.sin(2*Math.PI*((w%52)/52));
       const dip = (w%52===51)?0.55:1;
       const expect = meta.weeklyRate * trend * season * dip;
